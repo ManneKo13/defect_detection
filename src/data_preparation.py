@@ -8,7 +8,7 @@ class Filenames():
 
         # Only subdirectories?
         subdir_names = []
-        subdir_names_slash = []
+
         for i in range(len(data_subdir)):
             if os.path.isdir(data_dir + '/' + data_subdir[i]):
                 # subdir_names_slash.append('/' + data_subdir[i])
