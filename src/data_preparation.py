@@ -41,16 +41,30 @@ class Filenames():
         # self.fn_points = [os.path.basename(x) for x in glob.glob(data_dir + ls_subdir_data[3] + '/*.png')]
 
 class Image_Preparation():
-    def __init__(self, image, clipLimit, tileGridSize) -> None:
+    def __init__(self, 
+                 image, 
+                 image_name, 
+                 clipLimit, 
+                 tileGridSize) -> None:
+        # Instantiate a Clahe opjekt 
         clahe = cv.createCLAHE(clipLimit = clipLimit,
                                tileGridSize = tileGridSize)
         
+        # Convert the BGR images into the desiered color spaces 
         gray_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         lab_image = cv.cvtColor(image, cv.COLOR_BGR2Lab)
 
+        # Attributes without using Histogram Equalization
+        self.image = image
+        self.image_name = image_name
         self.img_gray_histeq = clahe.apply(gray_image)
         
+        ''' ---------------
+            Applying limited adaptive Histogram Equalization onto the
+            layer which are describing the intensity of the image, in the
+            corresponding color space.
+        ''' 
         hsv_image[:,:,2] = clahe.apply(hsv_image[:,:,2])
         lab_image[:,:,0] = clahe.apply(lab_image[:,:,0])
 
