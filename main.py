@@ -1,3 +1,4 @@
+from lib2to3.pgen2.token import EQUAL
 from tkinter import image_names
 import cv2 as cv
 from pathlib import Path
@@ -67,6 +68,11 @@ def plotHist(img, img_name):
 
     plt.show()
 
+def plotEqualHist(img, img_name):
+    gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    equ = cv.equalizeHist(gray_img)
+    plot2img(img, equ, img_name)
+
 def main():
     img_pattern_files, image_names = make_img_lists('pattern')
     ''' ---------------
@@ -78,13 +84,15 @@ def main():
     # # Press enter in the window to close 
     # cv.waitKey(0)
 
-    plotHist(img_pattern_files[4], image_names[1])
+    # plotHist(img_pattern_files[4], image_names[1])
     ''' ---------------
         Using some Filters
     '''
     # mod_img = cv.cvtColor(img_pattern_files[0], cv.COLOR_BGR2HSV)
-    # plot2img(img_pattern_files[0], mod_img, image_names[0])
+    # gray_img = cv.cvtColor(img_pattern_files[0], cv.COLOR_BGR2GRAY)
+    # plot2img(img_pattern_files[0], gray_img, image_names[0])
     
+    plotEqualHist(img_pattern_files[0], image_names[0])
 
 if __name__ == "__main__":
     main()
