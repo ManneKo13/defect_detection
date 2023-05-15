@@ -73,6 +73,12 @@ def plotEqualHist(img, img_name):
     equ = cv.equalizeHist(gray_img)
     plot2img(img, equ, img_name)
 
+def plotClaheGray(img, img_name):
+    clahe = cv.createCLAHE(clipLimit = 2.0, tileGridSize = (8, 8))
+    gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    cl_img = clahe.apply(gray_img)
+    plot2img(img, cl_img, img_name)
+
 def main():
     img_pattern_files, image_names = make_img_lists('pattern')
     ''' ---------------
@@ -92,7 +98,9 @@ def main():
     # gray_img = cv.cvtColor(img_pattern_files[0], cv.COLOR_BGR2GRAY)
     # plot2img(img_pattern_files[0], gray_img, image_names[0])
     
-    plotEqualHist(img_pattern_files[0], image_names[0])
+    # plotEqualHist(img_pattern_files[0], image_names[0])
+    for i in range(len(image_names)):
+        plotClaheGray(img_pattern_files[i], image_names[i])
 
 if __name__ == "__main__":
     main()
