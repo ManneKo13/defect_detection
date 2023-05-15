@@ -7,6 +7,7 @@ import numpy as np
 from os import listdir
 from os import path
 import matplotlib
+from random import randint
 matplotlib.use('TkAgg',force=True)
 from matplotlib import pyplot as plt
 
@@ -82,11 +83,19 @@ def plotClaheGray(img, img_name):
 def plotClaheHSV(img, img_name):
     clahe = cv.createCLAHE(clipLimit = 2.0, tileGridSize = (8, 8))
     img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV) 
-    # Apply adaptive Histrogram equalization on the saturation plane
+    # Apply adaptive Histrogram equalization on the value plane
     img_hsv[:,:,2] = clahe.apply(img_hsv[:,:,2])
     out_img = cv.cvtColor(img_hsv, cv.COLOR_HSV2BGR)
     plot2img(img, out_img, img_name)
 
+def plotClaheLab(img, img_name):
+    clahe = cv.createCLAHE(clipLimit = 2.0, tileGridSize = (8, 8))
+    img_lab = cv.cvtColor(img, cv.COLOR_BGR2Lab) 
+    # Apply adaptive Histrogram equalization on the perceptual lightness plane
+    img_lab[:,:,0] = clahe.apply(img_lab[:,:,0])
+    out_img = cv.cvtColor(img_lab, cv.COLOR_Lab2BGR)
+    plot2img(img, out_img, img_name)
+    
 def main():
     img_pattern_files, image_names = make_img_lists('pattern')
     ''' ---------------
@@ -98,6 +107,7 @@ def main():
     # # Press enter in the window to close 
     # cv.waitKey(0)
 
+    idx = randint(0, len(image_names) - 1)
     # plotHist(img_pattern_files[4], image_names[1])
     ''' ---------------
         Using some Filters
@@ -109,7 +119,9 @@ def main():
     # plotEqualHist(img_pattern_files[0], image_names[0])
     # for i in range(len(image_names)):
     #     plotClaheGray(img_pattern_files[i], image_names[i])
-    plotClaheHSV(img_pattern_files[0], image_names[0])
+    # plotClaheHSV(img_pattern_files[idx], image_names[idx])
+    plotClaheLab(img_pattern_files[idx], image_names[idx])
+
 
 if __name__ == "__main__":
     main()
