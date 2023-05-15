@@ -79,6 +79,14 @@ def plotClaheGray(img, img_name):
     cl_img = clahe.apply(gray_img)
     plot2img(img, cl_img, img_name)
 
+def plotClaheHSV(img, img_name):
+    clahe = cv.createCLAHE(clipLimit = 2.0, tileGridSize = (8, 8))
+    img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV) 
+    # Apply adaptive Histrogram equalization on the saturation plane
+    img_hsv[:,:,2] = clahe.apply(img_hsv[:,:,2])
+    out_img = cv.cvtColor(img_hsv, cv.COLOR_HSV2BGR)
+    plot2img(img, out_img, img_name)
+
 def main():
     img_pattern_files, image_names = make_img_lists('pattern')
     ''' ---------------
@@ -99,8 +107,9 @@ def main():
     # plot2img(img_pattern_files[0], gray_img, image_names[0])
     
     # plotEqualHist(img_pattern_files[0], image_names[0])
-    for i in range(len(image_names)):
-        plotClaheGray(img_pattern_files[i], image_names[i])
+    # for i in range(len(image_names)):
+    #     plotClaheGray(img_pattern_files[i], image_names[i])
+    plotClaheHSV(img_pattern_files[0], image_names[0])
 
 if __name__ == "__main__":
     main()
