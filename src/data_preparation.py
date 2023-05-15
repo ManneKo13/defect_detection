@@ -1,5 +1,6 @@
 import os
 import glob
+import cv2 as cv
 
 class Filenames():
     def __init__(self, cwd: str) -> None:
@@ -38,4 +39,20 @@ class Filenames():
         # self.fn_pattern = [os.path.basename(x) for x in glob.glob(data_dir + ls_subdir_data[2] + '/*.png')]
         # # List of filenames in directory points
         # self.fn_points = [os.path.basename(x) for x in glob.glob(data_dir + ls_subdir_data[3] + '/*.png')]
-   
+
+class Image_Preparation():
+    def __init__(self, image, clipLimit, tileGridSize) -> None:
+        clahe = cv.createCLAHE(clipLimit = clipLimit,
+                               tileGridSize = tileGridSize)
+        
+        gray_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+        lab_image = cv.cvtColor(image, cv.COLOR_BGR2Lab)
+
+        self.img_gray_histeq = clahe.apply(gray_image)
+        
+        hsv_image[:,:,2] = clahe.apply(hsv_image[:,:,2])
+        lab_image[:,:,0] = clahe.apply(lab_image[:,:,0])
+
+        self.img_hsv_histeq = cv.cvtColor(hsv_image, cv.COLOR_HSV2BGR)
+        self.img_lab_histeq = cv.cvtColor(lab_image, cv.COLOR_Lab2BGR)

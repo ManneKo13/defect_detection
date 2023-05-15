@@ -2,7 +2,7 @@ from lib2to3.pgen2.token import EQUAL
 from tkinter import image_names
 import cv2 as cv
 from pathlib import Path
-from src.data_preparation import Filenames
+from src.data_preparation import Filenames, Image_Preparation
 import numpy as np
 from os import listdir
 from os import path
@@ -75,26 +75,16 @@ def plotEqualHist(img, img_name):
     plot2img(img, equ, img_name)
 
 def plotClaheGray(img, img_name):
-    clahe = cv.createCLAHE(clipLimit = 2.0, tileGridSize = (8, 8))
-    gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    cl_img = clahe.apply(gray_img)
-    plot2img(img, cl_img, img_name)
+    clahe = Image_Preparation(img, clipLimit = 2.0, tileGridSize = (8, 8))
+    plot2img(img, clahe.img_gray_histeq, img_name)
 
 def plotClaheHSV(img, img_name):
-    clahe = cv.createCLAHE(clipLimit = 2.0, tileGridSize = (8, 8))
-    img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV) 
-    # Apply adaptive Histrogram equalization on the value plane
-    img_hsv[:,:,2] = clahe.apply(img_hsv[:,:,2])
-    out_img = cv.cvtColor(img_hsv, cv.COLOR_HSV2BGR)
-    plot2img(img, out_img, img_name)
+    clahe = Image_Preparation(img, clipLimit = 2.0, tileGridSize = (8, 8))
+    plot2img(img, clahe.img_hsv_histeq, img_name)
 
 def plotClaheLab(img, img_name):
-    clahe = cv.createCLAHE(clipLimit = 2.0, tileGridSize = (8, 8))
-    img_lab = cv.cvtColor(img, cv.COLOR_BGR2Lab) 
-    # Apply adaptive Histrogram equalization on the perceptual lightness plane
-    img_lab[:,:,0] = clahe.apply(img_lab[:,:,0])
-    out_img = cv.cvtColor(img_lab, cv.COLOR_Lab2BGR)
-    plot2img(img, out_img, img_name)
+    clahe = Image_Preparation(img, clipLimit = 2.0, tileGridSize = (8, 8))
+    plot2img(img, clahe.img_lab_histeq, img_name)
     
 def main():
     img_pattern_files, image_names = make_img_lists('pattern')
@@ -121,7 +111,6 @@ def main():
     #     plotClaheGray(img_pattern_files[i], image_names[i])
     # plotClaheHSV(img_pattern_files[idx], image_names[idx])
     plotClaheLab(img_pattern_files[idx], image_names[idx])
-
 
 if __name__ == "__main__":
     main()
