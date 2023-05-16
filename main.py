@@ -2,24 +2,13 @@ from lib2to3.pgen2.token import EQUAL
 from tkinter import image_names
 import cv2 as cv
 from pathlib import Path
-from src.data_preparation import Filenames, Image_Preparation
+from src.data_preparation import Filenames, Image_Preparation, move_figure
 import numpy as np
 from os import listdir
 from os import path
 import matplotlib
 from random import randint
 from matplotlib import pyplot as plt
-
-def move_figure(f, x, y):
-    backend = matplotlib.get_backend()
-    if backend == 'TkAgg':
-        f.canvas.manager.window.wm_geometry("+%d+%d" % (x, y))
-    elif backend == 'WXAgg':
-        f.canvas.manager.window.SetPosition((x, y))
-    else:
-        # This works for QT and GTK
-        f.canvas.manager.window.move(x, y)
-
 
 ''' ---------------
     Function to plot two images, where the images should
@@ -31,7 +20,7 @@ def move_figure(f, x, y):
 def plot2img(img1, img2, img_name):
     rgb_img1 = cv.cvtColor(img1, cv.COLOR_BGR2RGB)
     rgb_img2 = cv.cvtColor(img2, cv.COLOR_BGR2RGB)
-    fig = plt.figure(figsize = (15, 10))
+    fig = plt.figure(figsize = (12, 8))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
     ax1.imshow(rgb_img1), ax1.set_title('Original (%s)' % img_name)
@@ -102,8 +91,8 @@ def main():
         cwd = Path.cwd().as_posix()
         module = Filenames(cwd)
 
-        image_names = module.get_subdir_filenames('pattern')
-        files_as_images = module.make_img_list('pattern')    
+        image_names = module.get_subdir_filenames('area')
+        files_as_images = module.make_img_list('area')    
 
         idx = randint(0, len(image_names) - 1)
         # img_prep = Image_Preparation(img_pattern_files[idx], 
@@ -112,11 +101,12 @@ def main():
         #                              tileGridSize = (4, 4))
 
         # plotEqualHist(img_pattern_files[0], image_names[0])
-        plotClaheGray(files_as_images[idx], image_names[idx])
+        # plotClaheGray(files_as_images[idx], image_names[idx])
         
-        # plotClaheHSV(img_pattern_files[idx], image_names[idx])
-        # plotClaheLab(img_pattern_files[idx], image_names[idx])
-
+        # plotClaheHSV(files_as_images[idx], image_names[idx])
+        # plotClaheLab(files_as_images[idx], image_names[idx])
+        module.plot_specific_image('area', image_names[1])
+        pass
         # for i in range(len(image_names)):
         #     img_prep = Image_Preparation(img_pattern_files[i], 
         #                                  image_names[i],

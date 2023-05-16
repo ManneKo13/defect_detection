@@ -1,6 +1,19 @@
+from ast import Assert
 import os
 import glob
 import cv2 as cv
+import matplotlib
+import matplotlib.pyplot as plt
+
+def move_figure(f, x, y):
+    backend = matplotlib.get_backend()
+    if backend == 'TkAgg':
+        f.canvas.manager.window.wm_geometry("+%d+%d" % (x, y))
+    elif backend == 'WXAgg':
+        f.canvas.manager.window.SetPosition((x, y))
+    else:
+        # This works for QT and GTK
+        f.canvas.manager.window.move(x, y)
 
 ''' ---------------
     This class manages the directory "data" in the working directory
@@ -83,6 +96,20 @@ class Filenames():
                 img_of_files.append(img)
 
             return img_of_files
+        except AssertionError as msg:
+            print(msg)
+
+    def plot_specific_image(self, subdirname, imagename):
+        try:
+            assert subdirname in self.subdir_names, "No subdirectory with this name!"
+            assert imagename in self.subdir_filenames[subdirname], "No file with this name in subdirectory {}".format(subdirname)
+            img = cv.imread(self.subdir_paths[subdirname] + '/' + imagename)
+            rgb_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+            fig, ax = plt.subplots(figsize = (12, 8), layout = 'constrained')
+            ax.set_title('Image: {} in folder: {}'.format(imagename, subdirname))
+            ax.imshow(rgb_img)
+            move_figure(fig, 0, 0)
+            plt.show()
         except AssertionError as msg:
             print(msg)
 class Image_Preparation():
