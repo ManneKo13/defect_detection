@@ -37,21 +37,44 @@ def plotHist(img, img_name):
 #     equ = cv.equalizeHist(gray_img)
 #     plot2img(img, equ, img_name)
 
+def random_image_indices(number_images, number_random):
+    try:
+        assert number_images >= number_random, "More random numbers desired than number of images!"
+        # Indices of the images
+        num_images = [x for x in range(number_images)]
+        rand_num_images = []
+        num = number_images
+        for i in range(number_random): 
+            idx = randint(0, num - 1)
+            rand_num_images.append(num_images.pop(idx))
+            num -= 1
+    
+        return rand_num_images
+    except AssertionError as msg:
+        print(msg)
+    
+
+
 def main():
     try:
         cwd = Path.cwd().as_posix()
         files = DataFiles(cwd)
 
-        image_names = files.get_subdir_filenames('pattern')
-        files_as_images = files.make_img_list('pattern')    
+        image_names = files.get_subdir_filenames('OK')
+        files_as_images = files.make_img_list('OK')    
+
+        rand_indices = random_image_indices(len(image_names), 5)
 
         idx = randint(0, len(image_names) - 1)
-        
-        output = files.get_Clahe_img_lab(files_as_images[idx])
-        files.plot2img(files_as_images[idx], output, image_names[idx], 'CLAHE in HSV')
+
+        for i in rand_indices:
+            output_gray = files.get_Clahe_img_gray(files_as_images[i])
+            output_lab = files.get_Clahe_img_lab(files_as_images[i])
+            output_hsv = files.get_Clahe_img_hsv(files_as_images[i])
+            files.plotThreeOutputs(files_as_images[i], output_gray, output_lab, output_hsv, image_names[i], ['Standard CLAHE', 'CLAHE in Lab', 'CLAHE in HSV'])
 
     except:
         print('An error occured!')
-
+  
 if __name__ == "__main__":
     main()

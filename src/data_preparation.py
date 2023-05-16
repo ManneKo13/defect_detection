@@ -145,7 +145,7 @@ class DataFiles():
         - img1: originial image in the upper left corner in bgr-format from opencv.imread
         - img2-img4: modified images in bgr-format from opencv.imread
         - imagename: str of the original image
-        - descriptions: tuple how img2-img4 are modified in the corresponding order
+        - descriptions: list how img2-img4 are modified in the corresponding order
     '''
     def plotThreeOutputs(self,
                          img1_bgr, 
@@ -153,19 +153,19 @@ class DataFiles():
                          img3_bgr, 
                          img4_bgr,
                          imagename: str,
-                         descriptions: tuple):
+                         descriptions: list):
 
         img1_rgb = cv.cvtColor(img1_bgr, cv.COLOR_BGR2RGB)
         img2_rgb = cv.cvtColor(img2_bgr, cv.COLOR_BGR2RGB)
         img3_rgb = cv.cvtColor(img3_bgr, cv.COLOR_BGR2RGB)
         img4_rgb = cv.cvtColor(img4_bgr, cv.COLOR_BGR2RGB)
         
-        figure = plt.figure(figsize = (15, 10))
+        figure = plt.figure(figsize = (12, 8))
         ax = figure.subplots(2, 2)
         ax[0, 0].imshow(img1_rgb), ax[0, 0].set_title('Original ({})'.format(imagename))
         ax[0 ,1].imshow(img2_rgb), ax[0 ,1].set_title('Output ({})'.format(descriptions[0]))
-        ax[1, 0].imshow(img3_rgb), ax[1, 0].set_title('Output ({}})'.format(descriptions[1]))
-        ax[1, 1].imshow(img4_rgb), ax[1, 1].set_title('Output ({}})'.format(descriptions[2]))
+        ax[1, 0].imshow(img3_rgb), ax[1, 0].set_title('Output ({})'.format(descriptions[1]))
+        ax[1, 1].imshow(img4_rgb), ax[1, 1].set_title('Output ({})'.format(descriptions[2]))
         move_figure(figure, 0, 0)
         plt.show()
 
