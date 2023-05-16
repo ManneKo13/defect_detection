@@ -159,6 +159,17 @@ class DataFiles():
         ax[1, 1].imshow(img4_rgb), ax[1, 1].set_title('Output ({}})'.format(descriptions[2]))
         move_figure(figure, 0, 0)
         plt.show()
+
+    def get_Clahe_img_gray(self, img,  
+                           clipLimit = 2.0, 
+                           tileGridSize = (8, 8)):
+        clahe = cv.createCLAHE(clipLimit = clipLimit,
+                               tileGridSize = tileGridSize)
+        # Convert the BGR images into the desiered color spaces 
+        gray_image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        img_gray_histeq = clahe.apply(gray_image)
+        return cv.cvtColor(img_gray_histeq, cv.COLOR_GRAY2BGR)
+        
 class Image_Preparation():
     def __init__(self, 
                  image, 
@@ -169,15 +180,14 @@ class Image_Preparation():
         clahe = cv.createCLAHE(clipLimit = clipLimit,
                                tileGridSize = tileGridSize)
         
-        # Convert the BGR images into the desiered color spaces 
-        gray_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        
         hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         lab_image = cv.cvtColor(image, cv.COLOR_BGR2Lab)
 
         # Attributes without using Histogram Equalization
         self.image = image
         self.image_name = image_name
-        self.img_gray_histeq = clahe.apply(gray_image)
+        
         
         ''' ---------------
             Applying limited adaptive Histogram Equalization onto the

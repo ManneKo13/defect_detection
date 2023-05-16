@@ -37,10 +37,6 @@ def plotHist(img, img_name):
 #     equ = cv.equalizeHist(gray_img)
 #     plot2img(img, equ, img_name)
 
-# def plotClaheGray(img, img_name):
-#     clahe = Image_Preparation(img, img_name, clipLimit = 2.0, tileGridSize = (8, 8))
-#     plot2img(img, clahe.img_gray_histeq, clahe.image_name)
-
 # def plotClaheHSV(img, img_name):
 #     clahe = Image_Preparation(img, img_name, clipLimit = 2.0, tileGridSize = (8, 8))
 #     plot2img(img, clahe.img_hsv_histeq, clahe.image_name)
@@ -50,38 +46,20 @@ def plotHist(img, img_name):
 #     plot2img(img, clahe.img_lab_histeq, clahe.image_name)
     
 def main():
-    # try:
-    cwd = Path.cwd().as_posix()
-    module = DataFiles(cwd)
+    try:
+        cwd = Path.cwd().as_posix()
+        files = DataFiles(cwd)
 
-    image_names = module.get_subdir_filenames('pattern')
-    files_as_images = module.make_img_list('pattern')    
+        image_names = files.get_subdir_filenames('pattern')
+        files_as_images = files.make_img_list('pattern')    
 
-    idx = randint(0, len(image_names) - 1)
-    # img_prep = Image_Preparation(img_pattern_files[idx], 
-    #                              image_names[idx],
-    #                              clipLimit = 2.0, 
-    #                              tileGridSize = (4, 4))
+        idx = randint(0, len(image_names) - 1)
+        
+        output = files.get_Clahe_img_gray(files_as_images[idx])
+        files.plot2img(files_as_images[idx], output, image_names[idx], 'Standard CLAHE')
 
-    # plotEqualHist(img_pattern_files[0], image_names[0])
-    # plotClaheGray(files_as_images[idx], image_names[idx])
-    
-    # plotClaheHSV(files_as_images[idx], image_names[idx])
-    # plotClaheLab(files_as_images[idx], image_names[idx])
-    # module.plotMultipleOutputs(files_as_images[0], files_as_images[1], files_as_images[2], files_as_images[3], image_names[0])
-    # for i in range(len(image_names)):
-    #     img_prep = Image_Preparation(img_pattern_files[i], 
-    #                                  image_names[i],
-    #                                  clipLimit = 2.0, 
-    #                                  tileGridSize = (4, 4))
-
-    #     plotMultipleOutputs(img_bgr = img_prep.image, 
-    #                         img_clahe_gray_bgr = img_prep.img_gray_histeq,
-    #                         img_clahe_hsv_bgr = img_prep.img_hsv_histeq,
-    #                         img_clahe_lab_bgr = img_prep.img_lab_histeq,
-    #                         img_name = img_prep.image_name)
-    # except:
-    #     print('An error occured!')
+    except:
+        print('An error occured!')
 
 if __name__ == "__main__":
     main()
