@@ -4,6 +4,7 @@ import glob
 import cv2 as cv
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 
 def move_figure(f, x, y):
     backend = matplotlib.get_backend()
@@ -32,7 +33,7 @@ def move_figure(f, x, y):
     Methods:
 
 '''
-class Filenames():
+class DataFiles():
     def __init__(self, cwd: str) -> None:
         data_dir = cwd + '/data'
         data_subdir = os.listdir(data_dir)
@@ -112,6 +113,52 @@ class Filenames():
             plt.show()
         except AssertionError as msg:
             print(msg)
+
+    ''' ---------------
+    Function to plot two images in numpyarray-format, this function should be
+    used to compare those two images.
+    - img1: image on the left side of the subplot in bgr-format from opencv.imread
+    - img2: image on the right side of the subplot in bgr-format from opencv.imread
+    - imagename: str of the left-side imagename
+    - description: str of possible modification of the right-side image
+    '''
+    def plot2img(self, 
+                 img1_bgr, 
+                 img2_bgr, 
+                 imagename, 
+                 description):
+
+        rgb_img1 = cv.cvtColor(img1_bgr, cv.COLOR_BGR2RGB)
+        rgb_img2 = cv.cvtColor(img2_bgr, cv.COLOR_BGR2RGB)
+        fig = plt.figure(figsize = (12, 8))
+        ax1 = fig.add_subplot(121)
+        ax2 = fig.add_subplot(122)
+        ax1.imshow(rgb_img1), ax1.set_title('Original ({}) '.format(imagename))
+        ax2.imshow(rgb_img2), ax2.set_title('Output (%s)' % description)
+        move_figure(fig, 0, 0)
+        plt.show()
+
+    def plotMultipleOutputs(self,
+                            img1_bgr, 
+                            img2_bgr, 
+                            img3_bgr, 
+                            img4_bgr,
+                            imagename: str,
+                            descriptions: tuple):
+
+        img1_rgb = cv.cvtColor(img1_bgr, cv.COLOR_BGR2RGB)
+        img2_rgb = cv.cvtColor(img2_bgr, cv.COLOR_BGR2RGB)
+        img3_rgb = cv.cvtColor(img3_bgr, cv.COLOR_BGR2RGB)
+        img4_rgb = cv.cvtColor(img4_bgr, cv.COLOR_BGR2RGB)
+        
+        figure = plt.figure(figsize = (15, 10))
+        ax = figure.subplots(2, 2)
+        ax[0, 0].imshow(img1_rgb), ax[0, 0].set_title('Original ({})'.format(imagename))
+        ax[0 ,1].imshow(img2_rgb), ax[0 ,1].set_title('Output ({})'.format(descriptions[0]))
+        ax[1, 0].imshow(img3_rgb), ax[1, 0].set_title('Output ({}})'.format(descriptions[1]))
+        ax[1, 1].imshow(img4_rgb), ax[1, 1].set_title('Output ({}})'.format(descriptions[2]))
+        move_figure(figure, 0, 0)
+        plt.show()
 class Image_Preparation():
     def __init__(self, 
                  image, 
