@@ -137,7 +137,16 @@ class DataFiles():
         ax2.imshow(rgb_img2), ax2.set_title('Output (%s)' % description)
         move_figure(fig, 0, 0)
         plt.show()
-
+    
+    ''' ---------------
+        Same method as "plot2img" but one can plot four images in one figure.
+        This method was meant to plot one original image and three different 
+        modifications of that image.
+        - img1: originial image in the upper left corner in bgr-format from opencv.imread
+        - img2-img4: modified images in bgr-format from opencv.imread
+        - imagename: str of the original image
+        - descriptions: tuple how img2-img4 are modified in the corresponding order
+    '''
     def plotMultipleOutputs(self,
                             img1_bgr, 
                             img2_bgr, 
@@ -160,15 +169,38 @@ class DataFiles():
         move_figure(figure, 0, 0)
         plt.show()
 
+    ''' ---------------
+        This method retunrs an grayscale image after an CLAHE transform 
+        in the bgr-format.
+        - img: the bgr-image which should be transformed
+        - clipLimit/tileGridSize: are used for the CLAHE object, since we are 
+                                  using an adaptive histogram equalization 
+    '''
     def get_Clahe_img_gray(self, img,  
                            clipLimit = 2.0, 
                            tileGridSize = (8, 8)):
         clahe = cv.createCLAHE(clipLimit = clipLimit,
                                tileGridSize = tileGridSize)
-        # Convert the BGR images into the desiered color spaces 
+        # Convert the BGR images into the gray spaces 
         gray_image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         img_gray_histeq = clahe.apply(gray_image)
         return cv.cvtColor(img_gray_histeq, cv.COLOR_GRAY2BGR)
+
+    def get_Clahe_img_hsv(self, img,  
+                          clipLimit = 2.0, 
+                          tileGridSize = (8, 8)):
+        clahe = cv.createCLAHE(clipLimit = clipLimit,
+                               tileGridSize = tileGridSize)
+        # Convert the BGR images into the hsv color spaces 
+        hsv_image = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+        ''' ---------------
+            Applying limited adaptive Histogram Equalization onto the
+            layer which are describing the intensity of the image, in the
+            corresponding color space.
+        ''' 
+        hsv_image[:,:,2] = clahe.apply(hsv_image[:,:,2])
+        return cv.cvtColor(hsv_image, cv.COLOR_HSV2BGR)
+    
         
 class Image_Preparation():
     def __init__(self, 
@@ -189,12 +221,7 @@ class Image_Preparation():
         self.image_name = image_name
         
         
-        ''' ---------------
-            Applying limited adaptive Histogram Equalization onto the
-            layer which are describing the intensity of the image, in the
-            corresponding color space.
-        ''' 
-        hsv_image[:,:,2] = clahe.apply(hsv_image[:,:,2])
+
         lab_image[:,:,0] = clahe.apply(lab_image[:,:,0])
 
         self.img_hsv_histeq = cv.cvtColor(hsv_image, cv.COLOR_HSV2BGR)

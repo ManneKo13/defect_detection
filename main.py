@@ -37,10 +37,6 @@ def plotHist(img, img_name):
 #     equ = cv.equalizeHist(gray_img)
 #     plot2img(img, equ, img_name)
 
-# def plotClaheHSV(img, img_name):
-#     clahe = Image_Preparation(img, img_name, clipLimit = 2.0, tileGridSize = (8, 8))
-#     plot2img(img, clahe.img_hsv_histeq, clahe.image_name)
-
 # def plotClaheLab(img, img_name):
 #     clahe = Image_Preparation(img, img_name, clipLimit = 2.0, tileGridSize = (8, 8))
 #     plot2img(img, clahe.img_lab_histeq, clahe.image_name)
@@ -55,8 +51,8 @@ def main():
 
         idx = randint(0, len(image_names) - 1)
         
-        output = files.get_Clahe_img_gray(files_as_images[idx])
-        files.plot2img(files_as_images[idx], output, image_names[idx], 'Standard CLAHE')
+        output = files.get_Clahe_img_hsv(files_as_images[idx])
+        files.plot2img(files_as_images[idx], output, image_names[idx], 'CLAHE in HSV')
 
     except:
         print('An error occured!')
