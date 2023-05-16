@@ -263,7 +263,13 @@ class DataFiles():
         lab_image = cv.cvtColor(img, cv.COLOR_BGR2YUV)
         lab_image[:,:,0] = clahe.apply(lab_image[:,:,0])
         return cv.cvtColor(lab_image, cv.COLOR_YUV2BGR)    
-        
+    
+    ''' ---------------
+        This method returns an bgr-image after using a standard 
+        histogram equalization with equalizeHist in the value plane,
+        of the correspondig HSV-image.
+        - img: the bgr-image which should be transformed
+    '''        
     def get_EqualHist_img(self, img):
         img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
         img_hsv[:,:,2] = cv.equalizeHist(img_hsv[:,:,2])

@@ -1,11 +1,11 @@
 from lib2to3.pgen2.token import EQUAL
+from msilib.schema import Directory
 from tkinter import image_names
 import cv2 as cv
 from pathlib import Path
 from src.data_preparation import DataFiles, move_figure
 import numpy as np
-from os import listdir
-from os import path
+import os
 import matplotlib
 from random import randint
 from matplotlib import pyplot as plt
@@ -47,6 +47,19 @@ def random_image_indices(number_images, number_random):
         return rand_num_images
     except AssertionError as msg:
         print(msg)
+
+def save_hsv_transformed_images():
+    cwd = Path.cwd().as_posix()
+    files = DataFiles(cwd)
+    image_names = files.get_subdir_filenames('OK')
+    files_as_images = files.make_img_list('OK')
+
+    directory = cwd + '/data/transformed'
+    output = files.get_Clahe_img_hsv(files_as_images[0])
+    output_name = 'hsv_' + image_names[0]
+    os.chdir(directory)
+    cv.imwrite(output_name, output)
+    pass
     
 def main():
     try:
@@ -56,6 +69,7 @@ def main():
         image_names = files.get_subdir_filenames('OK')
         files_as_images = files.make_img_list('OK')    
 
+        save_hsv_transformed_images()
         rand_indices = random_image_indices(len(image_names), 4)
 
         idx = randint(0, len(image_names) - 1)
@@ -66,7 +80,7 @@ def main():
 
         # img_bgr = cv.imread(f"{cwd}/data/points/0_0#(5755, 1774).png")
         output_yuv = files.get_Clahe_img_yuv(img)
-        files.plot2img(output_hsv, output_histeq, 'HSV', 'Histeq')
+        # files.plot2img(output_hsv, output_histeq, 'HSV', 'Histeq')
 
         # for i in rand_indices:
         #     output_gray = files.get_Clahe_img_gray(files_as_images[i])
