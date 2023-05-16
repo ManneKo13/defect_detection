@@ -2,17 +2,36 @@ import os
 import glob
 import cv2 as cv
 
+''' ---------------
+    This class manages the directory "data" in the working directory
+    and their files in it.
+    Attributes:
+    - subdir_names: list of strings of subdirectories in data
+    - subdir_paths: dictionary consisting of the paths to each
+                    subdirectory with the corresponding key from
+                    subdir_names.
+    - subdir_filenames: dictionary consisting of all the png-filenames in each
+                        subdirectory with the corresponding key from
+                        subdir_names.
+    - subdir_paths_of_filenames: dictionary consisting of the paths to each
+                                 filename with the corresponding key from
+                                 subdir_names.
+    Methods:
+
+'''
 class Filenames():
     def __init__(self, cwd: str) -> None:
         data_dir = cwd + '/data'
         data_subdir = os.listdir(data_dir)
 
-        # Only subdirectories?
         subdir_names = []
 
         for i in range(len(data_subdir)):
+            # Only subdirectories?
             if os.path.isdir(data_dir + '/' + data_subdir[i]):
-                subdir_names.append(data_subdir[i])
+                # Only non-empty subdirectories
+                if os.listdir(data_dir + '/' + data_subdir[i]):
+                    subdir_names.append(data_subdir[i])
 
         self.subdir_names = subdir_names
 
@@ -24,8 +43,7 @@ class Filenames():
 
         subdir_filenames = {}
         for i in range(len(subdir_names)):
-            if os.listdir(self.subdir_paths[subdir_names[i]]):
-                subdir_filenames[subdir_names[i]] = [os.path.basename(x) for x in glob.glob(self.subdir_paths[subdir_names[i]] + '/*.png')]
+            subdir_filenames[subdir_names[i]] = [os.path.basename(x) for x in glob.glob(self.subdir_paths[subdir_names[i]] + '/*.png')]
         
         self.subdir_filenames = subdir_filenames
 
@@ -36,8 +54,37 @@ class Filenames():
                 temp_lst.append(self.subdir_paths[subdir_names[i]] + '/' + self.subdir_filenames[subdir_names[i]][j])
             subdir_paths_of_filenames[subdir_names[i]] = temp_lst
 
-        self.subdir_paths_of_filenames = subdir_paths_of_filenames       
+        self.subdir_paths_of_filenames = subdir_paths_of_filenames   
 
+    ''' ---------------
+        Function to return a list of the filenames in a given subdirectory 
+    '''
+    def get_subdir_filenames(self, subdirname) -> list:
+        try:
+            filenames = []
+            assert subdirname in self.subdir_names, "No subdirectory with this name!"
+            filenames = self.subdir_filenames[subdirname]
+            return filenames
+        except AssertionError as msg:
+            print(msg)
+      
+    ''' ---------------
+        Function to get lists of the desired files in given subdirectory
+        in form of numpy-arrays from cv.imread
+        - img_of_files: list of the names of the images as string
+    '''
+    def make_img_list(self, subdirname) -> list:
+        try:
+            img_of_files = []
+            assert subdirname in self.subdir_names, "No subdirectory with this name!"
+            num_files = len(self.subdir_filenames[subdirname])
+            for i in range(num_files):
+                img = cv.imread(self.subdir_paths_of_filenames[subdirname][i])
+                img_of_files.append(img)
+
+            return img_of_files
+        except AssertionError as msg:
+            print(msg)
 class Image_Preparation():
     def __init__(self, 
                  image, 

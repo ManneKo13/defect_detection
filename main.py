@@ -20,25 +20,6 @@ def move_figure(f, x, y):
         # This works for QT and GTK
         f.canvas.manager.window.move(x, y)
 
-''' ---------------
-    Function to get lists of the desired files in given subdirectory
-    - img_pattern_files: list of images represented as numpy-arrays
-    - img_names: list of the names of the images as string
-'''
-def make_img_lists(subdir_name: str) -> list:
-    cwd = Path.cwd().as_posix()
-    
-    filenames = Filenames(cwd)
-    img_names = filenames.subdir_filenames[subdir_name]
-    num_pattern_files = len(filenames.subdir_filenames[subdir_name])
-    img_pattern_files = []
-    for i in range(num_pattern_files):
-        # Get the whole path-filename 
-        filename = filenames.subdir_paths[subdir_name] + '/' + filenames.subdir_filenames[subdir_name][i] 
-        img = cv.imread(filename)
-        img_pattern_files.append(img)
-
-    return img_pattern_files, img_names
 
 ''' ---------------
     Function to plot two images, where the images should
@@ -117,31 +98,38 @@ def plotMultipleOutputs(img_bgr,
     plt.show()
     
 def main():
-    img_pattern_files, image_names = make_img_lists('pattern')
-    
-    idx = randint(0, len(image_names) - 1)
+    try:
+        cwd = Path.cwd().as_posix()
+        module = Filenames(cwd)
 
-    img_prep = Image_Preparation(img_pattern_files[idx], 
-                                 image_names[idx],
-                                 clipLimit = 2.0, 
-                                 tileGridSize = (4, 4))
+        image_names = module.get_subdir_filenames('pattern')
+        files_as_images = module.make_img_list('pattern')    
 
-    # plotEqualHist(img_pattern_files[0], image_names[0])
-    # plotClaheGray(img_pattern_files[idx], image_names[idx])
-    # plotClaheHSV(img_pattern_files[idx], image_names[idx])
-    # plotClaheLab(img_pattern_files[idx], image_names[idx])
+        idx = randint(0, len(image_names) - 1)
+        # img_prep = Image_Preparation(img_pattern_files[idx], 
+        #                              image_names[idx],
+        #                              clipLimit = 2.0, 
+        #                              tileGridSize = (4, 4))
 
-    for i in range(len(image_names)):
-        img_prep = Image_Preparation(img_pattern_files[i], 
-                                     image_names[i],
-                                     clipLimit = 2.0, 
-                                     tileGridSize = (4, 4))
+        # plotEqualHist(img_pattern_files[0], image_names[0])
+        plotClaheGray(files_as_images[idx], image_names[idx])
+        
+        # plotClaheHSV(img_pattern_files[idx], image_names[idx])
+        # plotClaheLab(img_pattern_files[idx], image_names[idx])
 
-        plotMultipleOutputs(img_bgr = img_prep.image, 
-                            img_clahe_gray_bgr = img_prep.img_gray_histeq,
-                            img_clahe_hsv_bgr = img_prep.img_hsv_histeq,
-                            img_clahe_lab_bgr = img_prep.img_lab_histeq,
-                            img_name = img_prep.image_name)
+        # for i in range(len(image_names)):
+        #     img_prep = Image_Preparation(img_pattern_files[i], 
+        #                                  image_names[i],
+        #                                  clipLimit = 2.0, 
+        #                                  tileGridSize = (4, 4))
+
+        #     plotMultipleOutputs(img_bgr = img_prep.image, 
+        #                         img_clahe_gray_bgr = img_prep.img_gray_histeq,
+        #                         img_clahe_hsv_bgr = img_prep.img_hsv_histeq,
+        #                         img_clahe_lab_bgr = img_prep.img_lab_histeq,
+        #                         img_name = img_prep.image_name)
+    except:
+        print('An error occured!')
 
 if __name__ == "__main__":
     main()
