@@ -147,13 +147,13 @@ class DataFiles():
         - imagename: str of the original image
         - descriptions: tuple how img2-img4 are modified in the corresponding order
     '''
-    def plotMultipleOutputs(self,
-                            img1_bgr, 
-                            img2_bgr, 
-                            img3_bgr, 
-                            img4_bgr,
-                            imagename: str,
-                            descriptions: tuple):
+    def plotThreeOutputs(self,
+                         img1_bgr, 
+                         img2_bgr, 
+                         img3_bgr, 
+                         img4_bgr,
+                         imagename: str,
+                         descriptions: tuple):
 
         img1_rgb = cv.cvtColor(img1_bgr, cv.COLOR_BGR2RGB)
         img2_rgb = cv.cvtColor(img2_bgr, cv.COLOR_BGR2RGB)
@@ -170,7 +170,7 @@ class DataFiles():
         plt.show()
 
     ''' ---------------
-        This method retunrs an grayscale image after an CLAHE transform 
+        This method returns an grayscale image after using a CLAHE transform 
         in the bgr-format.
         - img: the bgr-image which should be transformed
         - clipLimit/tileGridSize: are used for the CLAHE object, since we are 
@@ -186,6 +186,13 @@ class DataFiles():
         img_gray_histeq = clahe.apply(gray_image)
         return cv.cvtColor(img_gray_histeq, cv.COLOR_GRAY2BGR)
 
+    ''' ---------------
+        This method returns an bgr-image after using a CLAHE transform in the value plane,
+        of the correspondig HSV-image.
+        - img: the bgr-image which should be transformed
+        - clipLimit/tileGridSize: are used for the CLAHE object, since we are 
+                                  using an adaptive histogram equalization 
+    '''
     def get_Clahe_img_hsv(self, img,  
                           clipLimit = 2.0, 
                           tileGridSize = (8, 8)):
@@ -200,29 +207,27 @@ class DataFiles():
         ''' 
         hsv_image[:,:,2] = clahe.apply(hsv_image[:,:,2])
         return cv.cvtColor(hsv_image, cv.COLOR_HSV2BGR)
-    
-        
-class Image_Preparation():
-    def __init__(self, 
-                 image, 
-                 image_name, 
-                 clipLimit, 
-                 tileGridSize) -> None:
-        # Instantiate a Clahe opjekt 
+
+    ''' ---------------
+        This method returns an bgr-image after using a CLAHE transform in the value plane,
+        of the correspondig HSV-image.
+        - img: the bgr-image which should be transformed
+        - clipLimit/tileGridSize: are used for the CLAHE object, since we are 
+                                  using an adaptive histogram equalization 
+    '''
+    def get_Clahe_img_lab(self, img,  
+                          clipLimit = 2.0, 
+                          tileGridSize = (8, 8)):
         clahe = cv.createCLAHE(clipLimit = clipLimit,
                                tileGridSize = tileGridSize)
-        
-        
-        hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-        lab_image = cv.cvtColor(image, cv.COLOR_BGR2Lab)
-
-        # Attributes without using Histogram Equalization
-        self.image = image
-        self.image_name = image_name
-        
-        
-
+        # Convert the BGR images into the lab color spaces 
+        lab_image = cv.cvtColor(img, cv.COLOR_BGR2Lab)
+        ''' ---------------
+            Applying limited adaptive Histogram Equalization onto the
+            layer which are describing the intensity of the image, in the
+            corresponding color space.
+        ''' 
         lab_image[:,:,0] = clahe.apply(lab_image[:,:,0])
+        return cv.cvtColor(lab_image, cv.COLOR_Lab2BGR)    
+        
 
-        self.img_hsv_histeq = cv.cvtColor(hsv_image, cv.COLOR_HSV2BGR)
-        self.img_lab_histeq = cv.cvtColor(lab_image, cv.COLOR_Lab2BGR)

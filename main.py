@@ -2,7 +2,7 @@ from lib2to3.pgen2.token import EQUAL
 from tkinter import image_names
 import cv2 as cv
 from pathlib import Path
-from src.data_preparation import DataFiles, Image_Preparation, move_figure
+from src.data_preparation import DataFiles, move_figure
 import numpy as np
 from os import listdir
 from os import path
@@ -37,10 +37,6 @@ def plotHist(img, img_name):
 #     equ = cv.equalizeHist(gray_img)
 #     plot2img(img, equ, img_name)
 
-# def plotClaheLab(img, img_name):
-#     clahe = Image_Preparation(img, img_name, clipLimit = 2.0, tileGridSize = (8, 8))
-#     plot2img(img, clahe.img_lab_histeq, clahe.image_name)
-    
 def main():
     try:
         cwd = Path.cwd().as_posix()
@@ -51,7 +47,7 @@ def main():
 
         idx = randint(0, len(image_names) - 1)
         
-        output = files.get_Clahe_img_hsv(files_as_images[idx])
+        output = files.get_Clahe_img_lab(files_as_images[idx])
         files.plot2img(files_as_images[idx], output, image_names[idx], 'CLAHE in HSV')
 
     except:
