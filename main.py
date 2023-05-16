@@ -59,20 +59,27 @@ def main():
     try:
         cwd = Path.cwd().as_posix()
         files = DataFiles(cwd)
-
+        descriptions = ['Standard CLAHE', 'CLAHE in Lab', 'CLAHE in HSV']
         image_names = files.get_subdir_filenames('OK')
         files_as_images = files.make_img_list('OK')    
 
-        rand_indices = random_image_indices(len(image_names), 5)
+        rand_indices = random_image_indices(len(image_names), 4)
 
         idx = randint(0, len(image_names) - 1)
+        img = files.get_img_from_filename('pattern', 'Muster_78.png')
+        output_hsv = files.get_Clahe_img_hsv(img)
+        # files.plot_specific_image(output_hsv)
 
-        for i in rand_indices:
-            output_gray = files.get_Clahe_img_gray(files_as_images[i])
-            output_lab = files.get_Clahe_img_lab(files_as_images[i])
-            output_hsv = files.get_Clahe_img_hsv(files_as_images[i])
-            files.plotThreeOutputs(files_as_images[i], output_gray, output_lab, output_hsv, image_names[i], ['Standard CLAHE', 'CLAHE in Lab', 'CLAHE in HSV'])
+        # img_bgr = cv.imread(f"{cwd}/data/points/0_0#(5755, 1774).png")
+        output_yuv = files.get_Clahe_img_yuv(img)
+        files.plot2img(output_hsv, output_yuv, 'Muster_78.png', 'YUV')
 
+        # for i in rand_indices:
+        #     output_gray = files.get_Clahe_img_gray(files_as_images[i])
+        #     output_lab = files.get_Clahe_img_lab(files_as_images[i])
+        #     output_hsv = files.get_Clahe_img_hsv(files_as_images[i])
+        #     # files.plotThreeOutputs(files_as_images[i], output_gray, output_lab, output_hsv, image_names[i], descriptions)
+        #     files.plot2img(files_as_images[i], output_hsv, image_names[i], 'HSV')
     except:
         print('An error occured!')
   

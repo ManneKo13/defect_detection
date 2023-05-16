@@ -30,8 +30,8 @@ def move_figure(f, x, y):
     - subdir_paths_of_filenames: dictionary consisting of the paths to each
                                  filename with the corresponding key from
                                  subdir_names.
-    Methods:
-
+    Methods: 
+        Are described above.
 '''
 class DataFiles():
     def __init__(self, cwd: str) -> None:
@@ -81,7 +81,22 @@ class DataFiles():
             return filenames
         except AssertionError as msg:
             print(msg)
-      
+
+    ''' ---------------
+        Function returns the bgr-format from opencv.imread from a specific filename.
+        - subdirname: name of the subdirectory which contains the desired image
+        - filename: the image from whom we want the bgr-format
+    '''
+    def get_img_from_filename(self, subdirname, filename):
+        try:
+            assert subdirname in self.subdir_names, "No subdirectory with this name!"
+            assert filename in self.subdir_filenames[subdirname], "No file in directory {} with this name!".format(subdirname)
+            img_index = self.subdir_filenames[subdirname].index(filename)
+            img_bgr = cv.imread(self.subdir_paths_of_filenames[subdirname][img_index])
+            return img_bgr
+        except AssertionError as msg:
+            print(msg)
+
     ''' ---------------
         Function to get lists of the desired files in given subdirectory
         in form of numpy-arrays from cv.imread
@@ -100,7 +115,11 @@ class DataFiles():
         except AssertionError as msg:
             print(msg)
 
-    def plot_specific_image(self, subdirname, imagename):
+    ''' ---------------
+        Provides a simple plot of a specific image, given by an filename,
+        in a given subdirectory.
+    '''
+    def plot_specific_image_by_name(self, subdirname, imagename):
         try:
             assert subdirname in self.subdir_names, "No subdirectory with this name!"
             assert imagename in self.subdir_filenames[subdirname], "No file with this name in subdirectory {}".format(subdirname)
@@ -114,6 +133,16 @@ class DataFiles():
         except AssertionError as msg:
             print(msg)
 
+    ''' ---------------
+        Provides a simple plot of a specific image, given in bgr-format.
+    '''
+    def plot_specific_image(self, img):
+            rgb_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+            fig, ax = plt.subplots(figsize = (12, 8), layout = 'constrained')
+            ax.set_title('Image')
+            ax.imshow(rgb_img)
+            move_figure(fig, 0, 0)
+            plt.show()
     ''' ---------------
     Function to plot two images in numpyarray-format, this function should be
     used to compare those two images.
@@ -222,12 +251,17 @@ class DataFiles():
                                tileGridSize = tileGridSize)
         # Convert the BGR images into the lab color spaces 
         lab_image = cv.cvtColor(img, cv.COLOR_BGR2Lab)
-        ''' ---------------
-            Applying limited adaptive Histogram Equalization onto the
-            layer which are describing the intensity of the image, in the
-            corresponding color space.
-        ''' 
         lab_image[:,:,0] = clahe.apply(lab_image[:,:,0])
         return cv.cvtColor(lab_image, cv.COLOR_Lab2BGR)    
+    
+    def get_Clahe_img_yuv(self, img,  
+                          clipLimit = 2.0, 
+                          tileGridSize = (8, 8)):
+        clahe = cv.createCLAHE(clipLimit = clipLimit,
+                               tileGridSize = tileGridSize)
+        # Convert the BGR images into the lab color spaces 
+        lab_image = cv.cvtColor(img, cv.COLOR_BGR2YUV)
+        lab_image[:,:,0] = clahe.apply(lab_image[:,:,0])
+        return cv.cvtColor(lab_image, cv.COLOR_YUV2BGR)    
         
 
