@@ -264,4 +264,7 @@ class DataFiles():
         lab_image[:,:,0] = clahe.apply(lab_image[:,:,0])
         return cv.cvtColor(lab_image, cv.COLOR_YUV2BGR)    
         
-
+    def get_EqualHist_img(self, img):
+        img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+        img_hsv[:,:,2] = cv.equalizeHist(img_hsv[:,:,2])
+        return cv.cvtColor(img_hsv, cv.COLOR_HSV2BGR)

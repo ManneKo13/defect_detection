@@ -32,11 +32,6 @@ def plotHist(img, img_name):
     move_figure(fig, 0, 0)
     plt.show()
 
-# def plotEqualHist(img, img_name):
-#     gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-#     equ = cv.equalizeHist(gray_img)
-#     plot2img(img, equ, img_name)
-
 def random_image_indices(number_images, number_random):
     try:
         assert number_images >= number_random, "More random numbers desired than number of images!"
@@ -53,8 +48,6 @@ def random_image_indices(number_images, number_random):
     except AssertionError as msg:
         print(msg)
     
-
-
 def main():
     try:
         cwd = Path.cwd().as_posix()
@@ -69,10 +62,11 @@ def main():
         img = files.get_img_from_filename('pattern', 'Muster_78.png')
         output_hsv = files.get_Clahe_img_hsv(img)
         # files.plot_specific_image(output_hsv)
+        output_histeq = files.get_EqualHist_img(img)
 
         # img_bgr = cv.imread(f"{cwd}/data/points/0_0#(5755, 1774).png")
         output_yuv = files.get_Clahe_img_yuv(img)
-        files.plot2img(output_hsv, output_yuv, 'Muster_78.png', 'YUV')
+        files.plot2img(output_hsv, output_histeq, 'HSV', 'Histeq')
 
         # for i in rand_indices:
         #     output_gray = files.get_Clahe_img_gray(files_as_images[i])
