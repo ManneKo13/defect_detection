@@ -9,28 +9,7 @@ import os
 import matplotlib
 from random import randint
 from matplotlib import pyplot as plt
-
-def plotHist(img, img_name):
-    ''' ---------------
-        Histogram for blue pixels
-        - hist is a 256x1 array, each value corresponds to number of pixels
-          in that image with its corresponding pixel value.    
-    '''
-    rgb_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-    fig = plt.figure(figsize = (15, 10))
-    ax1 = fig.add_subplot(121) 
-    ax1.imshow(rgb_img), ax1.set_title('Original (%s)' % img_name)
-    # plt.xticks([]), plt.yticks([])  
-    # hist = cv.calcHist([rgb_img], [channel], None, [256], [0, 256])
-    ax2 = fig.add_subplot(122) 
-    color = ('b', 'g', 'r')
-    for i, col in enumerate(color):
-        hist = cv.calcHist([rgb_img], [i], None, [256], [0, 256])
-        ax2 = plt.plot(hist, color = col)
-        plt.xlim([0, 256])
-
-    move_figure(fig, 0, 0)
-    plt.show()
+import sys
 
 def random_image_indices(number_images, number_random):
     try:
@@ -45,59 +24,60 @@ def random_image_indices(number_images, number_random):
             num -= 1
     
         return rand_num_images
-    except AssertionError as msg:
-        print(msg)
-
+    except AssertionError as e:
+        e.action = "in function random_image_indices()"
+        raise
+''' ---------------
+    Saves all the images after and CLAHE transformation
+    in the HSV color space. The directory for the saves 
+    should be in cwd/data/transformed/subdir, if this directory
+    does not exist an exception arises. Further are getting all the
+    imagenames "_HSV" at the end.
+    - subdir: the subdirectory with the wished images to save the 
+              transformation
+'''
 def save_hsv_transformed_images(subdir):
-    # Change the current working directory
-    cwd = Path.cwd().as_posix()
-    directory = cwd + '/data/transformed'
-    os.chdir(directory)
-    
-    # Get all the data from the subdirectory
-    files = DataFiles(cwd)
-    image_names = files.get_subdir_filenames(subdir)
-    files_as_images = files.make_img_list(subdir)
+    try:
+        # Change the current working directory
+        cwd = Path.cwd().as_posix()
+        directory = cwd + '/data/transformed/' + subdir
+        if Path(directory).exists():
+            os.chdir(directory)
+            
+            # Get all the data from the subdirectory
+            files = DataFiles(cwd)
+            image_names = files.get_subdir_filenames(subdir)
+            files_as_images = files.make_img_list(subdir)
 
-    p = Path(image_names[0])
-    output_name = str(p.with_stem(p.stem + '_HSV'))
+            for i in range(len(image_names)):
+                p = Path(image_names[i])
+                output_name = str(p.with_stem(p.stem + '_HSV'))
 
-    # Get transformed image
-    output = files.get_Clahe_img_hsv(files_as_images[0])
-    cv.imwrite(output_name, output)
+                # Get transformed image
+                output = files.get_Clahe_img_hsv(files_as_images[i])
+                cv.imwrite(output_name, output)
+        else:
+            os.chdir(cwd)
+            assert Path(directory).exists() == True, "No such subdirectory!"
+            
+    except AssertionError as e:
+        e.action = "in function save_hsv_transformed_images()"
+        raise
 
-    os.chdir(cwd)
-    pass
-    
 def main():
     try:
         cwd = Path.cwd().as_posix()
         files = DataFiles(cwd)
-        descriptions = ['Standard CLAHE', 'CLAHE in Lab', 'CLAHE in HSV']
-        image_names = files.get_subdir_filenames('OK')
-        files_as_images = files.make_img_list('OK')    
+        image_names = files.get_subdir_filenames('points')
+        
+        random_image_indices(4, 5)
+        
+    except Exception as exc:
+        if getattr(exc, 'action', None):
+            msg = "Error {}: {}".format(exc.action, exc)
+        else:
+            msg = str(exc)
+        sys.exit(msg)
 
-        save_hsv_transformed_images('OK')
-        rand_indices = random_image_indices(len(image_names), 4)
-
-        idx = randint(0, len(image_names) - 1)
-        img = files.get_img_from_filename('pattern', 'Muster_78.png')
-        output_hsv = files.get_Clahe_img_hsv(img)
-        # files.plot_specific_image(output_hsv)
-        output_histeq = files.get_EqualHist_img(img)
-
-        # img_bgr = cv.imread(f"{cwd}/data/points/0_0#(5755, 1774).png")
-        output_yuv = files.get_Clahe_img_yuv(img)
-        # files.plot2img(output_hsv, output_histeq, 'HSV', 'Histeq')
-
-        # for i in rand_indices:
-        #     output_gray = files.get_Clahe_img_gray(files_as_images[i])
-        #     output_lab = files.get_Clahe_img_lab(files_as_images[i])
-        #     output_hsv = files.get_Clahe_img_hsv(files_as_images[i])
-        #     # files.plotThreeOutputs(files_as_images[i], output_gray, output_lab, output_hsv, image_names[i], descriptions)
-        #     files.plot2img(files_as_images[i], output_hsv, image_names[i], 'HSV')
-    except:
-        print('An error occured!')
-  
 if __name__ == "__main__":
     main()
