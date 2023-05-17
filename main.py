@@ -48,17 +48,25 @@ def random_image_indices(number_images, number_random):
     except AssertionError as msg:
         print(msg)
 
-def save_hsv_transformed_images():
+def save_hsv_transformed_images(subdir):
+    # Change the current working directory
     cwd = Path.cwd().as_posix()
-    files = DataFiles(cwd)
-    image_names = files.get_subdir_filenames('OK')
-    files_as_images = files.make_img_list('OK')
-
     directory = cwd + '/data/transformed'
-    output = files.get_Clahe_img_hsv(files_as_images[0])
-    output_name = 'hsv_' + image_names[0]
     os.chdir(directory)
+    
+    # Get all the data from the subdirectory
+    files = DataFiles(cwd)
+    image_names = files.get_subdir_filenames(subdir)
+    files_as_images = files.make_img_list(subdir)
+
+    p = Path(image_names[0])
+    output_name = str(p.with_stem(p.stem + '_HSV'))
+
+    # Get transformed image
+    output = files.get_Clahe_img_hsv(files_as_images[0])
     cv.imwrite(output_name, output)
+
+    os.chdir(cwd)
     pass
     
 def main():
@@ -69,7 +77,7 @@ def main():
         image_names = files.get_subdir_filenames('OK')
         files_as_images = files.make_img_list('OK')    
 
-        save_hsv_transformed_images()
+        save_hsv_transformed_images('OK')
         rand_indices = random_image_indices(len(image_names), 4)
 
         idx = randint(0, len(image_names) - 1)
