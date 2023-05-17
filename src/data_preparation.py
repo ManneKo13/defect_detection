@@ -5,6 +5,7 @@ import cv2 as cv
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+from math import sqrt
 
 def move_figure(f, x, y):
     backend = matplotlib.get_backend()
@@ -15,6 +16,22 @@ def move_figure(f, x, y):
     else:
         # This works for QT and GTK
         f.canvas.manager.window.move(x, y)
+
+''' ---------------
+    This function returns, to a given natural number x,
+    the nearest number b such that x <= b*b holds.
+'''
+def nearest_perfect_square(x):
+    y = x
+    max_iter = 1000
+    while(max_iter > 1):
+        b = int(sqrt(y))
+        if b*b == y:
+            break
+        else:
+            y += 1
+            max_iter -= 1
+    return b
 
 ''' ---------------
     This class manages the directory "data" in the working directory
@@ -176,25 +193,46 @@ class DataFiles():
         - imagename: str of the original image
         - descriptions: list how img2-img4 are modified in the corresponding order
     '''
-    def plotThreeOutputs(self,
-                         img1_bgr, 
-                         img2_bgr, 
-                         img3_bgr, 
-                         img4_bgr,
-                         imagename: str,
-                         descriptions: list):
+    def plot_all_transfomrs(self, img):
 
-        img1_rgb = cv.cvtColor(img1_bgr, cv.COLOR_BGR2RGB)
-        img2_rgb = cv.cvtColor(img2_bgr, cv.COLOR_BGR2RGB)
-        img3_rgb = cv.cvtColor(img3_bgr, cv.COLOR_BGR2RGB)
-        img4_rgb = cv.cvtColor(img4_bgr, cv.COLOR_BGR2RGB)
+        descriptions = ['Original', 'Std Histogram Eq.', 'CLAHE in gray', 
+                        'CLAHE in HSV', 'CLAHE in Lab', 'CLAHE with YUV']
+        img_transforms_bgr = {}
+        img_transforms_bgr[descriptions[0]] = img
+        img_transforms_bgr[descriptions[1]] = self.get_EqualHist_img(img)
+        img_transforms_bgr[descriptions[2]] = self.get_Clahe_img_gray(img)
+        img_transforms_bgr[descriptions[3]] =  self.get_Clahe_img_hsv(img)
+        img_transforms_bgr[descriptions[4]] =  self.get_Clahe_img_lab(img)
+        img_transforms_bgr[descriptions[5]] =  self.get_Clahe_img_yuv(img)
+
+        img_transforms = {}
+        for i in range(len(descriptions)):
+            img_transforms[descriptions[i]] = cv.cvtColor(img_transforms_bgr[descriptions[i]], cv.COLOR_BGR2RGB)
         
-        figure = plt.figure(figsize = (12, 8))
-        ax = figure.subplots(2, 2)
-        ax[0, 0].imshow(img1_rgb), ax[0, 0].set_title('Original ({})'.format(imagename))
-        ax[0 ,1].imshow(img2_rgb), ax[0 ,1].set_title('Output ({})'.format(descriptions[0]))
-        ax[1, 0].imshow(img3_rgb), ax[1, 0].set_title('Output ({})'.format(descriptions[1]))
-        ax[1, 1].imshow(img4_rgb), ax[1, 1].set_title('Output ({})'.format(descriptions[2]))
+        ''' ---------------
+            Compute necessary rows and columns for the subplots
+            depending on the number of images.
+        '''
+        num_images = len(descriptions)
+        col = nearest_perfect_square(num_images)
+        # Necessary rows
+        row = num_images//col
+        if num_images % col != 0:
+            row += 1
+
+        figure = plt.figure(figsize=(12, 8))
+        
+        # Create a position index
+        position = range(1, len(descriptions) + 1)
+        for i in range(len(descriptions)):
+            ''' ---------------
+                First instance of Rows accounts only for rows completely filled 
+                by subplots, then is added one more Row
+            '''
+            ax = figure.add_subplot(row, col, position[i])
+            ax.imshow(img_transforms[descriptions[i]])
+            ax.set_title(descriptions[i])
+                    
         move_figure(figure, 0, 0)
         plt.show()
 

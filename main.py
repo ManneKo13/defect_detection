@@ -10,6 +10,7 @@ import matplotlib
 from random import randint
 from matplotlib import pyplot as plt
 import sys
+from math import sqrt
 
 ''' ---------------
     Function returns a list of a random subset of 
@@ -75,10 +76,9 @@ def main():
     try:
         cwd = Path.cwd().as_posix()
         files = DataFiles(cwd)
-        image_names = files.get_subdir_filenames('points')
-        
-        random_image_indices(4, 5)
-        
+        files_img = files.make_img_list('pattern')
+        files.plot_all_transfomrs(files_img[2])
+
     except Exception as exc:
         if getattr(exc, 'action', None):
             msg = "Error {}: {}".format(exc.action, exc)
