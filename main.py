@@ -11,6 +11,12 @@ from random import randint
 from matplotlib import pyplot as plt
 import sys
 
+''' ---------------
+    Function returns a list of a random subset of 
+    the set {0, ... ,number_images - 1}
+    - number_images: upper bound for the set from which to pick
+    - number_random: the size of the subset
+'''
 def random_image_indices(number_images, number_random):
     try:
         assert number_images >= number_random, "More random numbers desired than number of images!"
@@ -27,6 +33,7 @@ def random_image_indices(number_images, number_random):
     except AssertionError as e:
         e.action = "in function random_image_indices()"
         raise
+
 ''' ---------------
     Saves all the images after and CLAHE transformation
     in the HSV color space. The directory for the saves 
