@@ -72,12 +72,91 @@ def save_hsv_transformed_images(subdir):
         e.action = "in function save_hsv_transformed_images()"
         raise
 
+def save_hsv_blurred_images(subdir):
+    try:
+        # Change the current working directory
+        cwd = Path.cwd().as_posix()
+        directory = cwd + '/data/test/' + subdir
+        if Path(directory).exists():
+            os.chdir(directory)
+            
+            # Get all the data from the subdirectory
+            files = DataFiles(cwd)
+            image_names = files.get_subdir_filenames(subdir)
+            files_as_images = files.make_img_list(subdir)
+
+            p = Path(image_names[3])
+            output_name = str(p.with_stem(p.stem + '_HSV_blurred'))
+
+            # Get transformed image
+            img_hsv = files.get_Clahe_img_hsv(files_as_images[3])
+            output = files.get_Gaussian_blurred_img(img_hsv)
+            cv.imwrite(output_name, output)
+
+            files.plot2img(files_as_images[3], output, True, 'CLAHE with filtering')
+
+        else:
+            os.chdir(cwd)
+            assert Path(directory).exists() == True, "No such subdirectory!"
+            
+    except AssertionError as e:
+        e.action = "in function save_hsv_transformed_images()"
+        raise
+
+# importing the os module
+import os
+ 
+# defining a function for the task
+def create_dirtree_without_files(src, dst):
+   
+    # getting the absolute path of the source
+    # directory
+    src = os.path.abspath(src)
+     
+    # making a variable having the index till which
+    # src string has directory and a path separator
+    src_prefix = len(src) + len(os.path.sep)
+     
+    # making the destination directory
+    os.makedirs(dst)
+     
+    # doing os walk in source directory
+    for root, dirs, files in os.walk(src):
+        for dirname in dirs:
+           
+            # here dst has destination directory,
+            # root[src_prefix:] gives us relative
+            # path from source directory
+            # and dirname has folder names
+            dirpath = os.path.join(dst, root[src_prefix:], dirname)
+             
+            # making the path which we made by
+            # joining all of the above three
+            os.mkdir(dirpath)
+
+
 def main():
     try:
         cwd = Path.cwd().as_posix()
         files = DataFiles(cwd)
-        files_img = files.make_img_list('pattern')
-        files.plot_all_transfomrs(files_img[2])
+        files_img = files.make_img_list('points')
+        filenames = files.get_subdir_filenames('points')
+        # files.plot_all_transfomrs(files_img[2])
+        img_hsv = files.get_Clahe_img_hsv(files_img[2])
+        # img_hsv_blur = files.get_Gaussian_blurred_img(img_hsv, kernel_size = (3, 3), std_dev_x = 0.5, std_dev_y = 0.5)
+        # files.plot2img(img_hsv, img_hsv_blur, filenames[2], 'Gaussian Blur')
+        # save_hsv_blurred_images('points')
+        # root_directory = Path(cwd)
+        # for path_object in root_directory.rglob('*.png'):
+        #     if path_object.is_file():
+        #         print(f"hi, I'm a file: {path_object}")
+        #     elif path_object.is_dir():
+        #         print(f"hi, I'm a dir: {path_object}")
+
+         
+        # calling the above function
+        create_dirtree_without_files('C:/Users/markorb/git/defect_detection/data/Basis_Bereinigt',
+                             'C:/Users/markorb/git/defect_detection/data/transformed/Basis_Bereinigt')
 
     except Exception as exc:
         if getattr(exc, 'action', None):

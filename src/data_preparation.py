@@ -1,11 +1,13 @@
 from ast import Assert
 import os
 import glob
+from typing import Tuple
 import cv2 as cv
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from math import sqrt
+from pathlib import Path
 
 def move_figure(f, x, y):
     backend = matplotlib.get_backend()
@@ -100,6 +102,19 @@ class DataFiles():
             print(msg)
 
     ''' ---------------
+        Function to returns a string of the filename path in a given subdirectory 
+    '''
+    def get_subdir_filename_path(self, subdirname, filename) -> str:
+        try:
+            filename_path = '' 
+            assert subdirname in self.subdir_names, "No subdirectory with this name!"
+            assert filename in self.subdir_filenames[subdirname], "No file in directory {} with this name!".format(subdirname)
+            filename_path = self.subdir_paths_of_filenames[subdirname]
+            return filename_path
+        except AssertionError as msg:
+            print(msg)
+
+    ''' ---------------
         Function returns the bgr-format from opencv.imread from a specific filename.
         - subdirname: name of the subdirectory which contains the desired image
         - filename: the image from whom we want the bgr-format
@@ -165,25 +180,27 @@ class DataFiles():
     used to compare those two images.
     - img1: image on the left side of the subplot in bgr-format from opencv.imread
     - img2: image on the right side of the subplot in bgr-format from opencv.imread
-    - imagename: str of the left-side imagename
+    - save: bool, when true plot will be saved
     - description: str of possible modification of the right-side image
     '''
     def plot2img(self, 
                  img1_bgr, 
-                 img2_bgr, 
-                 imagename, 
+                 img2_bgr,
+                 save, 
                  description):
-
         rgb_img1 = cv.cvtColor(img1_bgr, cv.COLOR_BGR2RGB)
         rgb_img2 = cv.cvtColor(img2_bgr, cv.COLOR_BGR2RGB)
         fig = plt.figure(figsize = (12, 8))
         ax1 = fig.add_subplot(121)
         ax2 = fig.add_subplot(122)
-        ax1.imshow(rgb_img1), ax1.set_title('Original ({}) '.format(imagename))
+        ax1.imshow(rgb_img1), ax1.set_title('Original')
         ax2.imshow(rgb_img2), ax2.set_title('Output (%s)' % description)
+        if save:
+            p = Path('C:/Users/markorb/git/defect_detection/data/test/points/punktuell_vergleich_2.png')
+            plt.savefig(p)
         move_figure(fig, 0, 0)
-        plt.show()
-    
+        plt.show()       
+        
     ''' ---------------
         Same method as "plot2img" but one can plot four images in one figure.
         This method was meant to plot one original image and three different 
@@ -312,3 +329,16 @@ class DataFiles():
         img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
         img_hsv[:,:,2] = cv.equalizeHist(img_hsv[:,:,2])
         return cv.cvtColor(img_hsv, cv.COLOR_HSV2BGR)
+
+    ''' ---------------
+        This method returns an bgr-image after using an Gaussian Blur
+        onto it.
+    '''
+    def get_Gaussian_blurred_img(self,
+                                 img,
+                                 kernel_size = (3, 3),
+                                 std_dev_x = 0.5,
+                                 std_dev_y = 0.5
+                                 ):
+        img_blurred = cv.GaussianBlur(img, ksize = kernel_size, sigmaX = std_dev_x, sigmaY = std_dev_y)
+        return img_blurred
