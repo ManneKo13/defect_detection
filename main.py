@@ -1,3 +1,4 @@
+from fileinput import filename
 from lib2to3.pgen2.token import EQUAL
 from msilib.schema import Directory
 from tkinter import image_names
@@ -103,46 +104,90 @@ def save_hsv_blurred_images(subdir):
         e.action = "in function save_hsv_transformed_images()"
         raise
 
-# importing the os module
-import os
- 
-# defining a function for the task
-def create_dirtree_without_files(src, dst):
+# # defining a function for the task
+# def create_dirtree_without_files(src, dst):
    
-    # getting the absolute path of the source
-    # directory
-    src = os.path.abspath(src)
+#     # getting the absolute path of the source
+#     # directory
+#     src = os.path.abspath(src)
      
-    # making a variable having the index till which
-    # src string has directory and a path separator
-    src_prefix = len(src) + len(os.path.sep)
+#     # making a variable having the index till which
+#     # src string has directory and a path separator
+#     src_prefix = len(src) + len(os.path.sep)
      
-    # making the destination directory
-    os.makedirs(dst)
+#     # making the destination directory
+#     os.makedirs(dst)
      
-    # doing os walk in source directory
-    for root, dirs, files in os.walk(src):
-        for dirname in dirs:
+#     # doing os walk in source directory
+#     for root, dirs, files in os.walk(src):
+#         for dirname in dirs:
            
-            # here dst has destination directory,
-            # root[src_prefix:] gives us relative
-            # path from source directory
-            # and dirname has folder names
-            dirpath = os.path.join(dst, root[src_prefix:], dirname)
+#             # here dst has destination directory,
+#             # root[src_prefix:] gives us relative
+#             # path from source directory
+#             # and dirname has folder names
+#             dirpath = os.path.join(dst, root[src_prefix:], dirname)
              
-            # making the path which we made by
-            # joining all of the above three
-            os.mkdir(dirpath)
+#             # making the path which we made by
+#             # joining all of the above three
+#             os.mkdir(dirpath)
+# # calling the above function
+# create_dirtree_without_files('C:/Users/markorb/git/defect_detection/data/Basis_Bereinigt',
+#                      'C:/Users/markorb/git/defect_detection/data/transformed/Basis_Bereinigt')
 
+def img_transform(path, dst, file_name):
+    clahe = cv.createCLAHE(clipLimit = 2.0,
+                            tileGridSize = (8, 8))
+    
+    img = cv.imread(str(path))
+    hsv_image = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+    ''' ---------------
+        Applying limited adaptive Histogram Equalization onto the
+        layer which are describing the intensity of the image, in the
+        corresponding color space.
+    ''' 
+    hsv_image[:,:,2] = clahe.apply(hsv_image[:,:,2])
+    hsv_image = cv.cvtColor(hsv_image, cv.COLOR_HSV2BGR)
+
+    img_blurred = cv.GaussianBlur(hsv_image, ksize = (3, 3), sigmaX = 0.5, sigmaY = 0.5)
+    output_name = Path(file_name).with_stem(Path(file_name).stem + '_HSV_blurred')
+    # if Path(dst).exists():
+    #     os.chdir(dst) 
+    cv.imwrite(str(dst.joinpath(output_name)), img_blurred)
+    
+    
+
+def walk(path):
+    copy_target = Path('data/transformed')
+    cwd = Path.cwd()
+    dst = cwd.joinpath(copy_target)
+    for p in Path(path).iterdir():
+        if p.is_dir():
+            dir_path = dst.joinpath(p.relative_to(*p.parts[:1]))
+            if not dir_path.exists():
+                Path.mkdir(dir_path)
+            yield from walk(p)
+            continue
+        if p.is_file() and p.suffix == '.png':
+            file_name = p.stem + p.suffix
+            file_path_with_name = dst.joinpath(p.relative_to(*p.parts[:1]))
+            file_path = file_path_with_name.parent
+            img_transform(p, file_path, file_name)
+        yield p.resolve()
 
 def main():
     try:
-        cwd = Path.cwd().as_posix()
-        files = DataFiles(cwd)
-        files_img = files.make_img_list('points')
-        filenames = files.get_subdir_filenames('points')
+        cwd = Path.cwd()
+        parent_path = Path('data/Eindeutig_NIO_Bereinigt')
+        work_path = cwd.joinpath(parent_path)
+        dst = Path(cwd).joinpath(Path('data/transformed/Eindeutig_NIO_Bereinigt'))
+        if not dst.exists():
+            Path.mkdir(dst)
+        # files = DataFiles(cwd)
+        # files_img = files.make_img_list('points')
+        # filenames = files.get_subdir_filenames('points')
         # files.plot_all_transfomrs(files_img[2])
-        img_hsv = files.get_Clahe_img_hsv(files_img[2])
+        # img_hsv = files.get_Clahe_img_hsv(files_img[2])
         # img_hsv_blur = files.get_Gaussian_blurred_img(img_hsv, kernel_size = (3, 3), std_dev_x = 0.5, std_dev_y = 0.5)
         # files.plot2img(img_hsv, img_hsv_blur, filenames[2], 'Gaussian Blur')
         # save_hsv_blurred_images('points')
@@ -152,11 +197,11 @@ def main():
         #         print(f"hi, I'm a file: {path_object}")
         #     elif path_object.is_dir():
         #         print(f"hi, I'm a dir: {path_object}")
+        for p in walk(parent_path):
+            print(p)
+        # save_hsv_blurred_images('pattern')
 
          
-        # calling the above function
-        create_dirtree_without_files('C:/Users/markorb/git/defect_detection/data/Basis_Bereinigt',
-                             'C:/Users/markorb/git/defect_detection/data/transformed/Basis_Bereinigt')
 
     except Exception as exc:
         if getattr(exc, 'action', None):
